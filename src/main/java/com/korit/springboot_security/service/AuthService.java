@@ -5,6 +5,8 @@ import com.korit.springboot_security.dto.response.RespAuthDto;
 import com.korit.springboot_security.entity.User;
 import com.korit.springboot_security.repository.UserRepository;
 import com.korit.springboot_security.security.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -50,6 +52,24 @@ public class AuthService {
 
         return RespAuthDto.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public RespAuthDto refresh(String refreshToken) {
+        Claims claims = jwtUtil.parseToken(refreshToken);
+        if(claims == null) {
+            return null;
+        }
+        String username = claims.getSubject();
+        String userId = claims.getId();
+        String redisRefresh = redisTokenService.getRefreshToken(username);
+        if(redisRefresh == null || !redisRefresh.equals(refreshToken)) {
+            return null;
+        }
+        String newAccessToken = jwtUtil.generateToken(userId, username, false);
+        return RespAuthDto.builder()
+                .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
                 .build();
     }

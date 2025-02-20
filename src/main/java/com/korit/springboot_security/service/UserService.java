@@ -1,10 +1,13 @@
 package com.korit.springboot_security.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.korit.springboot_security.entity.User;
 import com.korit.springboot_security.repository.UserRepository;
 import com.korit.springboot_security.repository.UserRoleRepository;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +22,16 @@ public class UserService {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    public User getUserById(int userId) throws NotFoundException {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("해당 사용자 ID는 존재하지 않습니다"));
+    public User getUserById(int userId) throws NotFoundException, JsonProcessingException {
+//        System.out.println(redisTemplate.opsForValue().get("user:16"));
+        return objectMapper.readValue((String) redisTemplate.opsForValue().get("user:16"), User.class);
+//        return userRepository.findById(userId)
+//                .orElseThrow(() -> new NotFoundException("해당 사용자 ID는 존재하지 않습니다"));
     }
 
     public List<User> getAllUsers() throws NotFoundException {
