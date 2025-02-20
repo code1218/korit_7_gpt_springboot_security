@@ -34,6 +34,8 @@ public class JwtAuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         String bearerToken = getAuthorization((HttpServletRequest) servletRequest);
+        System.out.println("bearerToken: " + bearerToken);
+
         if(isValidToken(bearerToken)) {
             String accessToken = removeBearer(bearerToken);
             Claims claims = jwtUtil.parseToken(accessToken);
