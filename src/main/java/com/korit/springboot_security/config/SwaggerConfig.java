@@ -45,7 +45,7 @@ public class SwaggerConfig {
     }
 
     private SecurityRequirement getSecurityRequirement() {
-        return new SecurityRequirement().addList("JWT Bearer Token");
+        return new SecurityRequirement().addList("Bearer Authentication");
     }
 
 
