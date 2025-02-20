@@ -1,5 +1,6 @@
 package com.korit.springboot_security.security.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -33,5 +34,18 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + (isRefreshToken ? refreshTokenExpire : accessTokenExpire)))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Claims parseToken(String token) {
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                        .setSigningKey(key)
+                        .parseClaimsJws(token)
+                        .getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return claims;
     }
 }

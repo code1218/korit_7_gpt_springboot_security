@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Service
 public class AuthService {
 
@@ -21,6 +23,8 @@ public class AuthService {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private RedisTokenService redisTokenService;
 
     public RespAuthDto login(ReqSigninDto reqSigninDto) {
         User foundUser = userRepository.findByUsername(reqSigninDto.getUsername())
@@ -40,6 +44,10 @@ public class AuthService {
                                 foundUser.getUserId()),
                         foundUser.getUsername(),
                         true);
+
+        redisTokenService.setAccess(reqSigninDto.getUsername(), accessToken, Duration.ofMinutes(60));
+        redisTokenService.setRefresh(reqSigninDto.getUsername(), refreshToken, Duration.ofDays(7));
+
         return RespAuthDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

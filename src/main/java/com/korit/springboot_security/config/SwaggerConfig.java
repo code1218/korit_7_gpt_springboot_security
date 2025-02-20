@@ -1,8 +1,11 @@
 package com.korit.springboot_security.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +16,15 @@ public class SwaggerConfig {
     public OpenAPI getOpenAPI() {
         OpenAPI openAPI = new OpenAPI();
         openAPI.info(getInfo());
+        openAPI.addSecurityItem(getSecurityRequirement());
+        openAPI.components(new Components().addSecuritySchemes(
+                "Bearer Authentication",
+                new SecurityScheme()
+                        .name("Bearer Authentication")
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+        ));
         return openAPI;
     }
 
@@ -31,5 +43,10 @@ public class SwaggerConfig {
         contact.email("skjil1218@kakao.com");
         return contact;
     }
+
+    private SecurityRequirement getSecurityRequirement() {
+        return new SecurityRequirement().addList("JWT Bearer Token");
+    }
+
 
 }
